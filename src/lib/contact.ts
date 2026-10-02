@@ -24,5 +24,6 @@ export function matchesPerson(person: Person, query: string, role: Role | 'all')
   if (role !== 'all' && person.role !== role) return false
   const q = query.trim().toLowerCase()
   if (!q) return true
-  return [person.name, person.email, person.instagram].some((v) => v.toLowerCase().includes(q))
+  // osoby zapisane przed dodaniem notatek nie mają pola note
+  return [person.name, person.email, person.instagram, person.note ?? ''].some((v) => v.toLowerCase().includes(q))
 }

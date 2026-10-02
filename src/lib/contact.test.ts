@@ -18,10 +18,13 @@ describe('contact', () => {
   })
 
   it('filters people by role and text', () => {
-    const p: Person = { id: '1', name: 'Ania Nowak', email: 'ania@x.pl', instagram: 'ania.foto', role: 'model' }
+    const p: Person = { id: '1', name: 'Ania Nowak', email: 'ania@x.pl', instagram: 'ania.foto', role: 'model', note: 'Rozmiar 36, alergia na lateks' }
     expect(matchesPerson(p, '', 'all')).toBe(true)
     expect(matchesPerson(p, 'NOWAK', 'model')).toBe(true)
     expect(matchesPerson(p, 'foto', 'stylist')).toBe(false)
     expect(matchesPerson(p, 'kasia', 'all')).toBe(false)
+    expect(matchesPerson(p, 'lateks', 'all')).toBe(true)
+    const legacy = { ...p, note: undefined } as unknown as Person
+    expect(matchesPerson(legacy, 'nowak', 'all')).toBe(true)
   })
 })

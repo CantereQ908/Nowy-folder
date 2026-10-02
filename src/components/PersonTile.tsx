@@ -20,6 +20,7 @@ export function PersonTile({ person, action }: { person: Person; action?: ReactN
             </a>
           )}
         </div>
+        {person.note && <p className="tile-note">{person.note}</p>}
       </div>
       {action && <div className="tile-action">{action}</div>}
     </article>

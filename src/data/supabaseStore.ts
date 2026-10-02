@@ -33,7 +33,7 @@ export function createSupabaseStore(db: SupabaseClient): DataStore {
 
     async load() {
       const [people, sessions, links, tasks] = await Promise.all([
-        db.from('people').select('id, name, email, instagram, role'),
+        db.from('people').select('id, name, email, instagram, role, note'),
         db.from('sessions').select('id, title, session_date, start_time, end_time, location, description, status'),
         db.from('session_people').select('session_id, person_id'),
         db.from('tasks').select('id, session_id, parent_id, title, done, created_at'),

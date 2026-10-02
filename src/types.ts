@@ -7,6 +7,8 @@ export interface Person {
   email: string
   instagram: string
   role: Role
+  /** Dowolna notatka o osobie; może być pusta */
+  note: string
 }
 
 export interface Session {

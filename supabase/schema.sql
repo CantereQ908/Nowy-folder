@@ -7,6 +7,7 @@ create table public.people (
   email text not null default '',
   instagram text not null default '',
   role text not null check (role in ('model', 'stylist', 'makeup')),
+  note text not null default '',
   created_at timestamptz not null default now()
 );
 

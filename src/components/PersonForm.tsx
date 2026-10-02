@@ -9,6 +9,7 @@ export function PersonForm({ initial, onClose }: { initial?: Person; onClose(): 
   const [email, setEmail] = useState(initial?.email ?? '')
   const [instagram, setInstagram] = useState(initial?.instagram ?? '')
   const [role, setRole] = useState<Role>(initial?.role ?? 'model')
+  const [note, setNote] = useState(initial?.note ?? '')
 
   const submit = (e: FormEvent) => {
     e.preventDefault()
@@ -18,6 +19,7 @@ export function PersonForm({ initial, onClose }: { initial?: Person; onClose(): 
       email: email.trim(),
       instagram: instagram.trim(),
       role,
+      note: note.trim(),
     })
     onClose()
   }
@@ -57,6 +59,15 @@ export function PersonForm({ initial, onClose }: { initial?: Person; onClose(): 
             placeholder="@nazwa"
             autoCapitalize="none"
             autoCorrect="off"
+          />
+        </label>
+        <label>
+          Notatka
+          <textarea
+            rows={4}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Np. rozmiary, dostępność, ustalenia, na co uważać"
           />
         </label>
         <div className="form-actions">

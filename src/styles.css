@@ -503,6 +503,13 @@ textarea {
   overflow-wrap: anywhere;
 }
 
+.tile-note {
+  margin-top: 4px;
+  font-size: 0.875rem;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
 /* Przypinanie do sesji */
 
 .session-meta {
