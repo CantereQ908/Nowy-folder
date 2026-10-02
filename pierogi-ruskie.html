@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="pl">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pierogi ruskie</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+  /* Layout: karta przepisu w jednej kolumnie do 880px; pas ze stempelkami jak na ceramice z Bolesławca, pod nim składniki obok kroków. */
+  :root {
+    --bg: #f3f5f9;
+    --surface: #ffffff;
+    --ink: #14213d;
+    --muted: #55617a;
+    --accent: #1f3fa8;
+    --line: #cfd6e4;
+    --display: "Bricolage Grotesque", "Trebuchet MS", sans-serif;
+    --body: "Atkinson Hyperlegible", "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #0d1530; --surface: #16204a; --ink: #eef1f8;
+      --muted: #a9b3cc; --accent: #9db4ff; --line: #2c3a6e;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0d1530; --surface: #16204a; --ink: #eef1f8;
+    --muted: #a9b3cc; --accent: #9db4ff; --line: #2c3a6e;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 17px/1.55 var(--body);
+    padding-inline: 20px;
+    padding-block: 32px 56px;
+  }
+  .card { max-width: 880px; margin-inline: auto; display: grid; gap: 28px; }
+
+  .stamps {
+    height: 24px;
+    background:
+      radial-gradient(circle, var(--accent) 0 3px, transparent 3.5px 6px, var(--accent) 6.5px 8px, transparent 8.5px)
+      0 0 / 24px 24px repeat-x;
+  }
+
+  header { display: grid; gap: 12px; }
+  h1 {
+    font: 800 clamp(2.6rem, 9vw, 4.6rem)/0.95 var(--display);
+    letter-spacing: -0.02em;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .lead { margin: 0; max-width: 60ch; color: var(--muted); }
+  .facts { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 0; padding: 0; list-style: none; }
+  .facts li { display: grid; }
+  .facts span { font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .facts b { font: 500 1.25rem var(--display); font-variant-numeric: tabular-nums; }
+
+  .cols { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 32px; align-items: start; }
+  @media (max-width: 700px) { .cols { grid-template-columns: 1fr; } }
+
+  h2 { font: 800 1.4rem/1.2 var(--display); margin: 0; }
+  h3 { font: 700 0.75rem var(--body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin: 0; }
+
+  .ingredients {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 20px;
+    display: grid;
+    gap: 16px;
+  }
+  .scaler { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .stepper { display: flex; align-items: center; gap: 10px; }
+  .stepper button {
+    width: 36px; height: 36px;
+    border: 1.5px solid var(--accent);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--accent);
+    font: 700 1.2rem/1 var(--body);
+    cursor: pointer;
+  }
+  .stepper button:hover { background: var(--accent); color: var(--surface); }
+  .stepper button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+  .stepper button:disabled { opacity: 0.35; cursor: default; background: transparent; color: var(--accent); }
+  .stepper output { min-width: 5.5ch; text-align: center; font-variant-numeric: tabular-nums; }
+
+  .ingredients ul { list-style: none; margin: 0; padding: 0; display: grid; }
+  .ingredients li {
+    display: flex; justify-content: space-between; gap: 16px;
+    padding-block: 7px;
+    border-top: 1px solid var(--line);
+  }
+  .ingredients li b { white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .group { display: grid; gap: 6px; }
+
+  .steps { display: grid; gap: 16px; }
+  .steps ol { margin: 0; padding: 0; list-style: none; counter-reset: krok; display: grid; gap: 18px; }
+  .steps li { counter-increment: krok; display: grid; grid-template-columns: 2.4rem minmax(0, 1fr); gap: 4px 8px; max-width: 62ch; }
+  .steps li::before {
+    content: counter(krok);
+    font: 800 1.9rem/1 var(--display);
+    color: var(--accent);
+  }
+  .steps li p { margin: 0; }
+  .steps li small { grid-column: 2; color: var(--muted); font-size: 0.875rem; }
+
+  footer { color: var(--muted); font-size: 0.875rem; border-top: 1px solid var(--line); padding-top: 16px; max-width: 65ch; }
+</style>
+
+<main class="card">
+  <div class="stamps" aria-hidden="true"></div>
+
+  <header>
+    <h1>Pierogi ruskie</h1>
+    <p class="lead">Ciasto parzone gorącą wodą, farsz z ziemniaków i twarogu, na wierzch cebula zeszklona na maśle. Z podanych proporcji wychodzi około 50 sztuk.</p>
+    <ul class="facts">
+      <li><span>Praca</span><b>60 min</b></li>
+      <li><span>Gotowanie</span><b>3 min od wypłynięcia</b></li>
+      <li><span>Sztuk</span><b id="count">50</b></li>
+    </ul>
+  </header>
+
+  <div class="cols">
+    <section class="ingredients" aria-labelledby="h-skladniki">
+      <div class="scaler">
+        <h2 id="h-skladniki">Składniki</h2>
+        <div class="stepper">
+          <button type="button" id="minus" aria-label="Mniej porcji">−</button>
+          <output id="portions" aria-live="polite">4 porcje</output>
+          <button type="button" id="plus" aria-label="Więcej porcji">+</button>
+        </div>
+      </div>
+
+      <div class="group">
+        <h3>Ciasto</h3>
+        <ul>
+          <li>Mąka pszenna typ 500 <b data-amt="500" data-unit="g"></b></li>
+          <li>Gorąca woda <b data-amt="250" data-unit="ml"></b></li>
+          <li>Olej <b data-amt="2" data-unit="łyżki"></b></li>
+          <li>Sól <b data-amt="0.5" data-unit="łyżeczki"></b></li>
+        </ul>
+      </div>
+
+      <div class="group">
+        <h3>Farsz</h3>
+        <ul>
+          <li>Ziemniaki mączyste <b data-amt="600" data-unit="g"></b></li>
+          <li>Twaróg półtłusty <b data-amt="250" data-unit="g"></b></li>
+          <li>Cebula <b data-amt="2" data-unit="szt."></b></li>
+          <li>Masło <b data-amt="2" data-unit="łyżki"></b></li>
+          <li>Sól i świeżo mielony pieprz <b>do smaku</b></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="steps" aria-labelledby="h-kroki">
+      <h2 id="h-kroki">Przygotowanie</h2>
+      <ol>
+        <li><p>Ugotuj obrane ziemniaki w osolonej wodzie, odcedź i odparuj. Przeciśnij przez praskę, póki są gorące, i zostaw do wystygnięcia.</p></li>
+        <li><p>Pokrój cebulę w kostkę i zeszklij na maśle na małym ogniu. Połowę dodaj do farszu, połowę zostaw do polania.</p><small>Około 10 minut. Cebula ma być złota, nie brązowa.</small></li>
+        <li><p>Wymieszaj ziemniaki z rozgniecionym twarogiem i cebulą. Dopraw solą i dużą ilością pieprzu.</p></li>
+        <li><p>Zalej mąkę z solą gorącą wodą z olejem, wymieszaj łyżką, a potem zagniataj ręcznie, aż ciasto będzie gładkie i elastyczne. Przykryj miską.</p><small>Zagniatanie 8 minut, odpoczynek 20 minut.</small></li>
+        <li><p>Rozwałkuj ciasto na grubość 2 mm i wykrawaj szklanką krążki o średnicy 7 cm. Na każdy nałóż łyżeczkę farszu i mocno zlep brzegi.</p></li>
+        <li><p>Gotuj partiami w osolonym wrzątku. Wyjmij łyżką cedzakową 3 minuty po wypłynięciu i polej cebulą z masłem.</p></li>
+      </ol>
+    </section>
+  </div>
+
+  <footer>Surowe pierogi można zamrozić na tacy oprószonej mąką, a po 2 godzinach przesypać do woreczka. Zamrożone gotuj bez rozmrażania, o 2 minuty dłużej.</footer>
+</main>
+
+<script>
+  const BASE = 4, MIN = 2, MAX = 12;
+  let portions = BASE;
+  try { portions = Number(localStorage.getItem("porcje")) || BASE; } catch (e) {}
+
+  const fmt = n => String(n).replace(".", ",");
+  const round = (v, unit) => {
+    if (unit === "g" || unit === "ml") return Math.round(v / 5) * 5;
+    return Math.max(0.5, Math.round(v * 2) / 2);
+  };
+  const label = n => n + (n === 1 ? " porcja" : (n % 10 >= 2 && n % 10 <= 4 && (n < 10 || n > 20)) ? " porcje" : " porcji");
+
+  function render() {
+    document.querySelectorAll("[data-amt]").forEach(el => {
+      const v = round(el.dataset.amt * portions / BASE, el.dataset.unit);
+      el.textContent = fmt(v) + " " + el.dataset.unit;
+    });
+    document.getElementById("portions").textContent = label(portions);
+    document.getElementById("count").textContent = Math.round(50 * portions / BASE / 5) * 5;
+    document.getElementById("minus").disabled = portions <= MIN;
+    document.getElementById("plus").disabled = portions >= MAX;
+    try { localStorage.setItem("porcje", portions); } catch (e) {}
+  }
+  document.getElementById("minus").onclick = () => { portions = Math.max(MIN, portions - 1); render(); };
+  document.getElementById("plus").onclick = () => { portions = Math.min(MAX, portions + 1); render(); };
+  portions = Math.min(MAX, Math.max(MIN, portions));
+  render();
+</script>
