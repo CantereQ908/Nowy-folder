@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { monthGrid, parseISO, todayISO, toISO } from './dates'
+import { formatTimeRange, monthGrid, parseISO, todayISO, toISO } from './dates'
 
 describe('dates', () => {
   it('formats ISO dates with padding', () => {
@@ -19,6 +19,15 @@ describe('dates', () => {
     expect(grid[0]).toEqual({ iso: '2026-09-28', day: 28, inMonth: false })
     expect(grid[3]).toEqual({ iso: '2026-10-01', day: 1, inMonth: true })
     expect(grid[34]).toEqual({ iso: '2026-11-01', day: 1, inMonth: false })
+  })
+
+  it('formats a time range', () => {
+    expect(formatTimeRange('15:30', '18:00')).toBe('15:30–18:00')
+    expect(formatTimeRange('15:30', '')).toBe('15:30')
+    expect(formatTimeRange('', '18:00')).toBe('do 18:00')
+    // sesje zapisane przed dodaniem godziny końca nie mają tego pola
+    expect(formatTimeRange('15:30', undefined)).toBe('15:30')
+    expect(formatTimeRange('', '')).toBe('')
   })
 
   it('handles months starting on Monday and needing six weeks', () => {

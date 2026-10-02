@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { SessionForm } from '../components/SessionForm'
 import { useData } from '../data/DataProvider'
-import { formatDate, todayISO } from '../lib/dates'
+import { formatDate, formatTimeRange, todayISO } from '../lib/dates'
 import { STATUS_LABEL, type Person, type Session } from '../types'
 
 const byDateTime = (a: Session, b: Session) => `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`)
@@ -23,7 +23,7 @@ function SessionCard({ session, people }: { session: Session; people: Person[] }
             {STATUS_LABEL[session.status]}
           </span>
         </div>
-        <div className="muted">{[session.time, session.location].filter(Boolean).join(' · ') || 'Bez godziny i miejsca'}</div>
+        <div className="muted">{[formatTimeRange(session.time, session.endTime), session.location].filter(Boolean).join(' · ') || 'Bez godziny i miejsca'}</div>
         <div className="crew">
           {crew.length === 0 && <span className="muted">Nikt jeszcze nie przypięty</span>}
           {crew.map((p) => (

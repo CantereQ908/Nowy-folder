@@ -34,7 +34,7 @@ export function createSupabaseStore(db: SupabaseClient): DataStore {
     async load() {
       const [people, sessions, links] = await Promise.all([
         db.from('people').select('id, name, email, instagram, role'),
-        db.from('sessions').select('id, title, session_date, start_time, location, description, status'),
+        db.from('sessions').select('id, title, session_date, start_time, end_time, location, description, status'),
         db.from('session_people').select('session_id, person_id'),
       ])
       const error = people.error ?? sessions.error ?? links.error
@@ -52,6 +52,7 @@ export function createSupabaseStore(db: SupabaseClient): DataStore {
             title: row.title,
             date: row.session_date,
             time: row.start_time,
+            endTime: row.end_time,
             location: row.location,
             description: row.description,
             status: row.status,
@@ -86,6 +87,7 @@ export function createSupabaseStore(db: SupabaseClient): DataStore {
           title: s.title,
           session_date: s.date,
           start_time: s.time,
+          end_time: s.endTime,
           location: s.location,
           description: s.description,
           status: s.status,

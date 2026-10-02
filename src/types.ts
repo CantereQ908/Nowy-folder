@@ -14,8 +14,10 @@ export interface Session {
   title: string
   /** YYYY-MM-DD */
   date: string
-  /** HH:MM albo pusty string */
+  /** Początek: HH:MM albo pusty string */
   time: string
+  /** Koniec: HH:MM albo pusty string */
+  endTime: string
   location: string
   description: string
   status: Status

@@ -45,6 +45,13 @@ export function formatLong(iso: string): string {
   return formatDate(iso, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 }
 
+/** „15:30–18:00", „15:30", „do 18:00" albo pusty string. */
+export function formatTimeRange(start: string, end?: string): string {
+  if (start && end) return `${start}–${end}`
+  if (end) return `do ${end}`
+  return start
+}
+
 export function monthLabel(year: number, month: number): string {
   return new Intl.DateTimeFormat('pl-PL', { month: 'long', year: 'numeric' }).format(new Date(year, month - 1, 1))
 }

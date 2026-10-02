@@ -16,7 +16,7 @@ import { RoleFilter, type RoleChoice } from '../components/RoleFilter'
 import { SessionForm } from '../components/SessionForm'
 import { useData } from '../data/DataProvider'
 import { mailtoAll, matchesPerson } from '../lib/contact'
-import { formatLong } from '../lib/dates'
+import { formatLong, formatTimeRange } from '../lib/dates'
 import { ROLES, ROLE_LABEL_PLURAL, STATUS_LABEL, type Person } from '../types'
 
 const PINNED = 'pinned'
@@ -94,7 +94,7 @@ export function SessionDetailView() {
         <div>
           <h1>{session.title}</h1>
           <p className="session-meta">
-            {[formatLong(session.date), session.time, session.location].filter(Boolean).join(' · ')}{' '}
+            {[formatLong(session.date), formatTimeRange(session.time, session.endTime), session.location].filter(Boolean).join(' · ')}{' '}
             <span className="badge status-badge" data-status={session.status}>
               {STATUS_LABEL[session.status]}
             </span>

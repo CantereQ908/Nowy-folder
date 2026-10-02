@@ -16,6 +16,7 @@ create table public.sessions (
   title text not null,
   session_date date not null,
   start_time text not null default '',
+  end_time text not null default '',
   location text not null default '',
   description text not null default '',
   status text not null default 'planned' check (status in ('planned', 'confirmed', 'done')),

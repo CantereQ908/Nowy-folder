@@ -18,6 +18,7 @@ export function SessionForm({ initial, defaultDate, onClose, onSaved, onDeleted 
   const [title, setTitle] = useState(initial?.title ?? '')
   const [date, setDate] = useState(initial?.date ?? defaultDate ?? todayISO())
   const [time, setTime] = useState(initial?.time ?? '')
+  const [endTime, setEndTime] = useState(initial?.endTime ?? '')
   const [location, setLocation] = useState(initial?.location ?? '')
   const [description, setDescription] = useState(initial?.description ?? '')
   const [status, setStatus] = useState<Status>(initial?.status ?? 'planned')
@@ -29,6 +30,7 @@ export function SessionForm({ initial, defaultDate, onClose, onSaved, onDeleted 
       title: title.trim(),
       date,
       time,
+      endTime,
       location: location.trim(),
       description: description.trim(),
       status,
@@ -53,14 +55,18 @@ export function SessionForm({ initial, defaultDate, onClose, onSaved, onDeleted 
           Nazwa
           <input value={title} onChange={(e) => setTitle(e.target.value)} required autoFocus />
         </label>
+        <label>
+          Data
+          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
+        </label>
         <div className="form-row">
           <label>
-            Data
-            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
+            Od godziny
+            <input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
           </label>
           <label>
-            Godzina
-            <input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
+            Do godziny
+            <input type="time" value={endTime} min={time || undefined} onChange={(e) => setEndTime(e.target.value)} />
           </label>
         </div>
         <label>
