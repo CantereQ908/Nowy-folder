@@ -14,6 +14,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { PersonTile } from '../components/PersonTile'
 import { RoleFilter, type RoleChoice } from '../components/RoleFilter'
 import { SessionForm } from '../components/SessionForm'
+import { TodoPanel } from '../components/TodoPanel'
 import { useData } from '../data/DataProvider'
 import { mailtoAll, matchesPerson } from '../lib/contact'
 import { formatLong, formatTimeRange } from '../lib/dates'
@@ -172,6 +173,8 @@ export function SessionDetailView() {
         </div>
         <DragOverlay>{dragged && <PersonTile person={dragged} />}</DragOverlay>
       </DndContext>
+
+      <TodoPanel sessionId={session.id} title="Do zrobienia przed sesją" />
 
       {editing && <SessionForm initial={session} onClose={() => setEditing(false)} onDeleted={() => navigate('/')} />}
     </>

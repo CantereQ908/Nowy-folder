@@ -30,10 +30,21 @@ create table public.session_people (
   primary key (session_id, person_id)
 );
 
+create table public.tasks (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null default auth.uid() references auth.users (id) on delete cascade,
+  session_id uuid references public.sessions (id) on delete cascade,
+  parent_id uuid references public.tasks (id) on delete cascade,
+  title text not null,
+  done boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
 -- Każdy zalogowany użytkownik widzi i zmienia wyłącznie swoje wiersze.
 alter table public.people enable row level security;
 alter table public.sessions enable row level security;
 alter table public.session_people enable row level security;
+alter table public.tasks enable row level security;
 
 create policy "own people" on public.people for all to authenticated
   using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
@@ -42,5 +53,8 @@ create policy "own sessions" on public.sessions for all to authenticated
 create policy "own session_people" on public.session_people for all to authenticated
   using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
 
+create policy "own tasks" on public.tasks for all to authenticated
+  using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
+
 -- Zmiany na żywo między urządzeniami.
-alter publication supabase_realtime add table public.people, public.sessions, public.session_people;
+alter publication supabase_realtime add table public.people, public.sessions, public.session_people, public.tasks;

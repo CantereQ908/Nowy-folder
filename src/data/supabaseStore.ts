@@ -1,6 +1,6 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
-import type { Data, Person, Session } from '../types'
-import type { DataStore } from './store'
+import type { Data, Person, Session, Task } from '../types'
+import { normalize, type DataStore } from './store'
 
 const url = import.meta.env.VITE_SUPABASE_URL
 const key = import.meta.env.VITE_SUPABASE_KEY
@@ -17,7 +17,7 @@ export function clearCache(): void {
 function readCache(): Data | null {
   try {
     const raw = localStorage.getItem(CACHE_KEY)
-    return raw ? (JSON.parse(raw) as Data) : null
+    return raw ? normalize(JSON.parse(raw)) : null
   } catch {
     return null
   }
@@ -32,12 +32,13 @@ export function createSupabaseStore(db: SupabaseClient): DataStore {
     needsNetwork: true,
 
     async load() {
-      const [people, sessions, links] = await Promise.all([
+      const [people, sessions, links, tasks] = await Promise.all([
         db.from('people').select('id, name, email, instagram, role'),
         db.from('sessions').select('id, title, session_date, start_time, end_time, location, description, status'),
         db.from('session_people').select('session_id, person_id'),
+        db.from('tasks').select('id, session_id, parent_id, title, done, created_at'),
       ])
-      const error = people.error ?? sessions.error ?? links.error
+      const error = people.error ?? sessions.error ?? links.error ?? tasks.error
       if (error) {
         // Offline albo chwilowy błąd: pokaż ostatnio pobrane dane.
         const cached = readCache()
@@ -57,6 +58,16 @@ export function createSupabaseStore(db: SupabaseClient): DataStore {
             description: row.description,
             status: row.status,
             personIds: links.data!.filter((l) => l.session_id === row.id).map((l) => l.person_id),
+          }),
+        ),
+        tasks: tasks.data!.map(
+          (row): Task => ({
+            id: row.id,
+            sessionId: row.session_id,
+            parentId: row.parent_id,
+            title: row.title,
+            done: row.done,
+            createdAt: row.created_at,
           }),
         ),
       }
@@ -106,6 +117,22 @@ export function createSupabaseStore(db: SupabaseClient): DataStore {
     },
     async unpin(sessionId, personId) {
       check(await db.from('session_people').delete().eq('session_id', sessionId).eq('person_id', personId))
+    },
+    async saveTask(t) {
+      check(
+        await db.from('tasks').upsert({
+          id: t.id,
+          session_id: t.sessionId,
+          parent_id: t.parentId,
+          title: t.title,
+          done: t.done,
+          created_at: t.createdAt,
+        }),
+      )
+    },
+    async deleteTask(id) {
+      // Podzadania usuwa baza (on delete cascade).
+      check(await db.from('tasks').delete().eq('id', id))
     },
   }
 }

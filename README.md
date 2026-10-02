@@ -27,7 +27,10 @@ Bez konfiguracji Supabase aplikacja działa w **trybie lokalnym** — dane są z
 4. Otwórz aplikację, wybierz „Nie mam konta — załóż" i zarejestruj się.
 5. Po założeniu konta wyłącz rejestrację kolejnych osób: **Authentication → Sign In / Providers → Allow new users to sign up**.
 
-Jeśli baza powstała przed dodaniem godziny zakończenia sesji, uruchom jeszcze raz w SQL Editor plik [supabase/migrations-2026-10-02-end-time.sql](supabase/migrations-2026-10-02-end-time.sql).
+Jeśli baza powstała przed którąś z późniejszych zmian, uruchom w SQL Editor brakujące pliki (można je puszczać wielokrotnie):
+
+- [supabase/migrations-2026-10-02-end-time.sql](supabase/migrations-2026-10-02-end-time.sql) — godzina zakończenia sesji
+- [supabase/migrations-2026-10-02-tasks.sql](supabase/migrations-2026-10-02-tasks.sql) — listy zadań
 
 Dane z trybu lokalnego nie przenoszą się automatycznie do chmury.
 

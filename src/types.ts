@@ -24,9 +24,22 @@ export interface Session {
   personIds: string[]
 }
 
+export interface Task {
+  id: string
+  /** null = zadanie ogólne, niepowiązane z żadną sesją */
+  sessionId: string | null
+  /** null = zadanie główne; inaczej id zadania, którego to jest podzadaniem */
+  parentId: string | null
+  title: string
+  done: boolean
+  /** ISO, wyznacza kolejność na liście */
+  createdAt: string
+}
+
 export interface Data {
   people: Person[]
   sessions: Session[]
+  tasks: Task[]
 }
 
 export const ROLES: Role[] = ['model', 'stylist', 'makeup']

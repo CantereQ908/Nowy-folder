@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { SessionForm } from '../components/SessionForm'
+import { TodoPanel } from '../components/TodoPanel'
 import { useData } from '../data/DataProvider'
 import { formatDate, formatTimeRange, todayISO } from '../lib/dates'
 import { STATUS_LABEL, type Person, type Session } from '../types'
@@ -80,6 +81,8 @@ export function SessionsView() {
           </div>
         </section>
       )}
+
+      <TodoPanel sessionId={null} title="Do zrobienia" />
 
       {adding && <SessionForm onClose={() => setAdding(false)} onSaved={(s) => navigate(`/sesja/${s.id}`)} />}
     </>

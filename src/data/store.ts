@@ -1,4 +1,4 @@
-import type { Data, Person, Session } from '../types'
+import type { Data, Person, Session, Task } from '../types'
 
 export type SessionFields = Omit<Session, 'personIds'>
 
@@ -14,9 +14,17 @@ export interface DataStore {
   deleteSession(id: string): Promise<void>
   pin(sessionId: string, personId: string): Promise<void>
   unpin(sessionId: string, personId: string): Promise<void>
+  saveTask(task: Task): Promise<void>
+  /** Usuwa też podzadania. */
+  deleteTask(id: string): Promise<void>
 }
 
-export const EMPTY: Data = { people: [], sessions: [] }
+export const EMPTY: Data = { people: [], sessions: [], tasks: [] }
+
+/** Dane zapisane starszą wersją aplikacji mogą nie mieć nowszych pól. */
+export function normalize(data: Partial<Data>): Data {
+  return { ...EMPTY, ...data }
+}
 
 // Czyste zmiany stanu — używane do optymistycznych aktualizacji i przez localStore.
 
@@ -30,6 +38,7 @@ export function withPerson(data: Data, person: Person): Data {
 
 export function withoutPerson(data: Data, id: string): Data {
   return {
+    ...data,
     people: data.people.filter((p) => p.id !== id),
     sessions: data.sessions.map((s) => ({ ...s, personIds: s.personIds.filter((pid) => pid !== id) })),
   }
@@ -46,7 +55,23 @@ export function withSession(data: Data, fields: SessionFields): Data {
 }
 
 export function withoutSession(data: Data, id: string): Data {
-  return { ...data, sessions: data.sessions.filter((s) => s.id !== id) }
+  return {
+    ...data,
+    sessions: data.sessions.filter((s) => s.id !== id),
+    tasks: data.tasks.filter((t) => t.sessionId !== id),
+  }
+}
+
+export function withTask(data: Data, task: Task): Data {
+  const exists = data.tasks.some((t) => t.id === task.id)
+  return {
+    ...data,
+    tasks: exists ? data.tasks.map((t) => (t.id === task.id ? task : t)) : [...data.tasks, task],
+  }
+}
+
+export function withoutTask(data: Data, id: string): Data {
+  return { ...data, tasks: data.tasks.filter((t) => t.id !== id && t.parentId !== id) }
 }
 
 export function withPin(data: Data, sessionId: string, personId: string): Data {

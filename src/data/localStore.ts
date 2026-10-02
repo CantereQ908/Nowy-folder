@@ -1,12 +1,15 @@
 import type { Data } from '../types'
 import {
   EMPTY,
+  normalize,
   withPerson,
   withPin,
   withSession,
+  withTask,
   withoutPerson,
   withoutPin,
   withoutSession,
+  withoutTask,
   type DataStore,
 } from './store'
 
@@ -15,7 +18,7 @@ const KEY = 'sesje.local'
 function read(): Data {
   try {
     const raw = localStorage.getItem(KEY)
-    return raw ? (JSON.parse(raw) as Data) : EMPTY
+    return raw ? normalize(JSON.parse(raw)) : EMPTY
   } catch {
     return EMPTY
   }
@@ -42,4 +45,6 @@ export const localStore: DataStore = {
   deleteSession: (id) => update((d) => withoutSession(d, id)),
   pin: (sessionId, personId) => update((d) => withPin(d, sessionId, personId)),
   unpin: (sessionId, personId) => update((d) => withoutPin(d, sessionId, personId)),
+  saveTask: (task) => update((d) => withTask(d, task)),
+  deleteTask: (id) => update((d) => withoutTask(d, id)),
 }
