@@ -41,9 +41,9 @@ Bez internetu aplikacja się otwiera i pokazuje ostatnio pobrane dane; zmiany wy
 ## Publikacja (GitHub Pages)
 
 1. W repo na GitHubie: **Settings → Pages → Source: GitHub Actions** (na darmowym planie repo musi być publiczne).
-2. Każdy push na `main` buduje i publikuje aplikację pod `https://cantereq908.github.io/Nowy-folder/`.
+2. Każdy push na `main` buduje i publikuje aplikację pod `https://cantereq908.github.io/SteelPlanner/`.
 
-Po zmianie nazwy repo popraw `base` w [vite.config.ts](vite.config.ts).
+Adres strony zależy od nazwy repo. Po jej zmianie aplikacja działa dalej, ale pod nowym adresem — trzeba ją zainstalować na urządzeniach od nowa i poprawić Site URL w Supabase (Authentication → URL Configuration).
 
 ## Instalacja
 

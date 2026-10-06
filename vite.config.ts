@@ -3,8 +3,9 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
-  // Nazwa repo na GitHub Pages: https://cantereq908.github.io/Nowy-folder/
-  base: '/Nowy-folder/',
+  // Ścieżki względne: aplikacja działa pod dowolną nazwą repo na GitHub Pages
+  // (routing jest w #, więc zawsze ładowany jest ten sam index.html).
+  base: './',
   plugins: [
     react(),
     VitePWA({
