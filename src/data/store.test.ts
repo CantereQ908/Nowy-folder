@@ -1,6 +1,20 @@
 import { describe, expect, it } from 'vitest'
-import type { Data, Task } from '../types'
-import { EMPTY, normalize, withTask, withoutSession, withoutTask } from './store'
+import type { Data, Post, Task } from '../types'
+import { EMPTY, normalize, withPost, withTask, withoutPerson, withoutPost, withoutSession, withoutTask } from './store'
+
+const post = (id: string, extra: Partial<Post> = {}): Post => ({
+  id,
+  sessionId: null,
+  date: '',
+  time: '',
+  format: 'post',
+  status: 'idea',
+  caption: '',
+  hashtags: '',
+  personIds: [],
+  notes: '',
+  ...extra,
+})
 
 const task = (id: string, extra: Partial<Task> = {}): Task => ({
   id,
@@ -33,16 +47,29 @@ describe('store', () => {
     expect(withoutTask(data, 'b1').tasks.map((t) => t.id)).toEqual(['a', 'a1', 'b'])
   })
 
-  it('removes a session together with its tasks, keeping general ones', () => {
+  it('removes a session together with its tasks, keeping general ones and its posts', () => {
     const data: Data = {
       people: [],
       sessions: [
         { id: 's', title: 'S', date: '2026-10-17', time: '', endTime: '', location: '', description: '', status: 'planned', personIds: [] },
       ],
       tasks: [task('general'), task('for-s', { sessionId: 's' })],
+      posts: [post('from-s', { sessionId: 's' })],
     }
     const result = withoutSession(data, 's')
     expect(result.sessions).toEqual([])
     expect(result.tasks.map((t) => t.id)).toEqual(['general'])
+    expect(result.posts).toEqual([post('from-s', { sessionId: null })])
+  })
+
+  it('adds, replaces and removes posts', () => {
+    const added = withPost(EMPTY, post('p'))
+    expect(withPost(added, post('p', { status: 'ready' })).posts).toEqual([post('p', { status: 'ready' })])
+    expect(withoutPost(added, 'p').posts).toEqual([])
+  })
+
+  it('removing a person untags them from posts', () => {
+    const data: Data = { ...EMPTY, posts: [post('p', { personIds: ['a', 'b'] })] }
+    expect(withoutPerson(data, 'a').posts[0].personIds).toEqual(['b'])
   })
 })

@@ -41,11 +41,27 @@ create table public.tasks (
   created_at timestamptz not null default now()
 );
 
+create table public.posts (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null default auth.uid() references auth.users (id) on delete cascade,
+  session_id uuid references public.sessions (id) on delete set null,
+  publish_date date,
+  publish_time text not null default '',
+  format text not null default 'post' check (format in ('post', 'carousel', 'reel', 'story')),
+  status text not null default 'idea' check (status in ('idea', 'ready', 'published')),
+  caption text not null default '',
+  hashtags text not null default '',
+  person_ids uuid[] not null default '{}',
+  notes text not null default '',
+  created_at timestamptz not null default now()
+);
+
 -- Każdy zalogowany użytkownik widzi i zmienia wyłącznie swoje wiersze.
 alter table public.people enable row level security;
 alter table public.sessions enable row level security;
 alter table public.session_people enable row level security;
 alter table public.tasks enable row level security;
+alter table public.posts enable row level security;
 
 create policy "own people" on public.people for all to authenticated
   using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
@@ -56,6 +72,8 @@ create policy "own session_people" on public.session_people for all to authentic
 
 create policy "own tasks" on public.tasks for all to authenticated
   using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
+create policy "own posts" on public.posts for all to authenticated
+  using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
 
 -- Zmiany na żywo między urządzeniami.
-alter publication supabase_realtime add table public.people, public.sessions, public.session_people, public.tasks;
+alter publication supabase_realtime add table public.people, public.sessions, public.session_people, public.tasks, public.posts;

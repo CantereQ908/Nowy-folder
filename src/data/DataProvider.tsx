@@ -1,14 +1,16 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
-import type { Data, Person, Task } from '../types'
+import type { Data, Person, Post, Task } from '../types'
 import {
   EMPTY,
   withPerson,
   withPin,
   withSession,
+  withPost,
   withTask,
   withoutPerson,
   withoutPin,
   withoutSession,
+  withoutPost,
   withoutTask,
   type DataStore,
   type SessionFields,
@@ -30,6 +32,8 @@ interface DataContext {
   unpin(sessionId: string, personId: string): Promise<void>
   saveTask(task: Task): Promise<void>
   deleteTask(id: string): Promise<void>
+  savePost(post: Post): Promise<void>
+  deletePost(id: string): Promise<void>
 }
 
 const Ctx = createContext<DataContext | null>(null)
@@ -119,6 +123,8 @@ export function DataProvider({ store, children }: { store: DataStore; children: 
       unpin: (sid, pid) => mutate((d) => withoutPin(d, sid, pid), () => store.unpin(sid, pid)),
       saveTask: (t) => mutate((d) => withTask(d, t), () => store.saveTask(t)),
       deleteTask: (id) => mutate((d) => withoutTask(d, id), () => store.deleteTask(id)),
+      savePost: (p) => mutate((d) => withPost(d, p), () => store.savePost(p)),
+      deletePost: (id) => mutate((d) => withoutPost(d, id), () => store.deletePost(id)),
     }
   }, [data, loading, online, error, store, refresh])
 

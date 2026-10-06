@@ -38,10 +38,32 @@ export interface Task {
   createdAt: string
 }
 
+export type PostFormat = 'post' | 'carousel' | 'reel' | 'story'
+export type PostStatus = 'idea' | 'ready' | 'published'
+
+export interface Post {
+  id: string
+  /** null = post niepowiązany z sesją */
+  sessionId: string | null
+  /** YYYY-MM-DD albo pusty string, gdy data jeszcze nieustalona */
+  date: string
+  /** HH:MM albo pusty string */
+  time: string
+  format: PostFormat
+  status: PostStatus
+  caption: string
+  hashtags: string
+  /** Osoby do oznaczenia */
+  personIds: string[]
+  /** Uwagi robocze, np. które zdjęcia */
+  notes: string
+}
+
 export interface Data {
   people: Person[]
   sessions: Session[]
   tasks: Task[]
+  posts: Post[]
 }
 
 export const ROLES: Role[] = ['model', 'stylist', 'makeup']
@@ -56,6 +78,23 @@ export const ROLE_LABEL_PLURAL: Record<Role, string> = {
   model: 'Modele',
   stylist: 'Styliści',
   makeup: 'Makijażyści',
+}
+
+export const POST_FORMATS: PostFormat[] = ['post', 'carousel', 'reel', 'story']
+
+export const POST_FORMAT_LABEL: Record<PostFormat, string> = {
+  post: 'Post',
+  carousel: 'Karuzela',
+  reel: 'Reels',
+  story: 'Relacja',
+}
+
+export const POST_STATUSES: PostStatus[] = ['idea', 'ready', 'published']
+
+export const POST_STATUS_LABEL: Record<PostStatus, string> = {
+  idea: 'Pomysł',
+  ready: 'Gotowy',
+  published: 'Opublikowany',
 }
 
 export const STATUSES: Status[] = ['planned', 'confirmed', 'done']

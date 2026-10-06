@@ -5,10 +5,12 @@ import {
   withPerson,
   withPin,
   withSession,
+  withPost,
   withTask,
   withoutPerson,
   withoutPin,
   withoutSession,
+  withoutPost,
   withoutTask,
   type DataStore,
 } from './store'
@@ -47,4 +49,6 @@ export const localStore: DataStore = {
   unpin: (sessionId, personId) => update((d) => withoutPin(d, sessionId, personId)),
   saveTask: (task) => update((d) => withTask(d, task)),
   deleteTask: (id) => update((d) => withoutTask(d, id)),
+  savePost: (post) => update((d) => withPost(d, post)),
+  deletePost: (id) => update((d) => withoutPost(d, id)),
 }

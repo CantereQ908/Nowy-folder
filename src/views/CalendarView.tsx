@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { SessionForm } from '../components/SessionForm'
 import { useData } from '../data/DataProvider'
 import { formatDate, monthGrid, monthLabel, todayISO } from '../lib/dates'
+import { POST_FORMAT_LABEL } from '../types'
 
 const WEEKDAYS = ['pon', 'wt', 'śr', 'czw', 'pt', 'sob', 'niedz']
 
@@ -51,6 +52,9 @@ export function CalendarView() {
           const sessions = data.sessions
             .filter((s) => s.date === cell.iso)
             .sort((a, b) => a.time.localeCompare(b.time))
+          const posts = data.posts
+            .filter((p) => p.date === cell.iso)
+            .sort((a, b) => a.time.localeCompare(b.time))
           const classes = ['day', !cell.inMonth && 'outside', cell.iso === today && 'today'].filter(Boolean).join(' ')
           return (
             <div key={cell.iso} className={classes}>
@@ -67,11 +71,17 @@ export function CalendarView() {
                   {s.title}
                 </Link>
               ))}
+              {posts.map((p) => (
+                <Link key={p.id} to={`/posty/${p.id}`} className="day-session day-post" data-post-status={p.status}>
+                  <span className="day-post-label">IG </span>
+                  {p.caption.split('\n')[0] || POST_FORMAT_LABEL[p.format]}
+                </Link>
+              ))}
             </div>
           )
         })}
       </div>
-      <p className="muted hint">Kliknij numer dnia, żeby dodać sesję w tym terminie.</p>
+      <p className="muted hint">Kliknij numer dnia, żeby dodać sesję w tym terminie. Wpisy „IG" to zaplanowane posty.</p>
 
       {addingOn && (
         <SessionForm

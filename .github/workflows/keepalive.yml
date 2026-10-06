@@ -1,0 +1,35 @@
+name: Podtrzymanie Supabase
+
+# Darmowy projekt Supabase jest wstrzymywany po tygodniu bez ruchu.
+# Co trzy dni robimy jedno zapytanie do bazy, żeby tak się nie stało.
+on:
+  schedule:
+    - cron: '17 6 */3 * *'
+  workflow_dispatch:
+
+permissions:
+  actions: write
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Zapytanie do bazy
+        env:
+          SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          SUPABASE_KEY: ${{ vars.VITE_SUPABASE_KEY }}
+        run: |
+          status=$(curl -s -o /dev/null -w '%{http_code}' \
+            "$SUPABASE_URL/rest/v1/sessions?select=id&limit=1" \
+            -H "apikey: $SUPABASE_KEY" -H "Authorization: Bearer $SUPABASE_KEY")
+          echo "Supabase odpowiedział: $status"
+          # Inny kod niż 200 = projekt prawdopodobnie wstrzymany; nieudany przebieg
+          # wyśle maila z GitHuba, żeby było wiadomo, że trzeba go przywrócić.
+          test "$status" = 200
+
+      # GitHub wyłącza harmonogramy w repo bez zmian od 60 dni. Ponowne włączenie
+      # tego workflow przez API przy każdym przebiegu ma temu zapobiegać.
+      - name: Podtrzymanie harmonogramu
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/keepalive.yml/enable"

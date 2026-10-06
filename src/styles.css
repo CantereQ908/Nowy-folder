@@ -14,6 +14,7 @@
   --planned: #8a6a00;
   --confirmed: #1a7a3c;
   --done: #6b665e;
+  --ig: #c1358a;
   --radius: 12px;
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
@@ -34,6 +35,7 @@
     --planned: #e0b84a;
     --confirmed: #5fd08a;
     --done: #a8a297;
+    --ig: #f07ac0;
   }
 }
 
@@ -337,6 +339,10 @@ textarea {
   font-weight: 600;
   margin-bottom: 4px;
   padding: 0;
+}
+
+.segmented:not([data-role]) {
+  --role: var(--ink);
 }
 
 .segmented label {
@@ -703,6 +709,148 @@ textarea {
   font-variant-numeric: tabular-nums;
 }
 
+/* Planer postów */
+
+.field {
+  display: grid;
+  gap: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.field-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 36px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.post-preview {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+}
+
+.post-preview pre {
+  margin: 0;
+  max-height: 180px;
+  overflow: auto;
+  font: inherit;
+  font-size: 0.9rem;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+.counts {
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.counts.over {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.post-card {
+  display: flex;
+  align-items: stretch;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--ig);
+  border-radius: var(--radius);
+}
+
+.post-card-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  gap: 14px;
+  padding: 12px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.post-card-body {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+  align-content: start;
+}
+
+.post-card-actions {
+  display: flex;
+  align-items: center;
+  padding-right: 12px;
+}
+
+.post-caption {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: pre-wrap;
+}
+
+.post-tags,
+.post-session {
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
+
+.format-badge {
+  color: var(--ig);
+  background: color-mix(in srgb, var(--ig) 12%, var(--surface));
+}
+
+.post-status-badge {
+  color: var(--muted);
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+
+[data-post-status='ready'] .post-status-badge {
+  color: var(--confirmed);
+}
+
+.post-card[data-post-status='published'] {
+  border-left-color: var(--line);
+}
+
+.overdue h2 {
+  color: var(--danger);
+}
+
+.overdue .post-card {
+  border-color: color-mix(in srgb, var(--danger) 45%, var(--line));
+  border-left-color: var(--danger);
+}
+
+.published .session-list {
+  opacity: 0.75;
+}
+
+.day-post {
+  border-left-color: var(--ig);
+  background: color-mix(in srgb, var(--ig) 10%, var(--surface));
+}
+
+.day-post[data-post-status='published'] {
+  opacity: 0.6;
+}
+
+.day-post-label {
+  font-weight: 800;
+  color: var(--ig);
+}
+
 @media (max-width: 760px) {
   .board {
     grid-template-columns: 1fr;
@@ -724,6 +872,23 @@ textarea {
 
   .todo.sub {
     margin-left: 20px;
+  }
+
+  .topbar {
+    gap: 8px;
+  }
+
+  .topbar nav {
+    gap: 0;
+    overflow-x: auto;
+  }
+
+  .topbar nav a {
+    padding: 0 10px;
+  }
+
+  .post-card-main {
+    gap: 10px;
   }
 }
 

@@ -1,5 +1,5 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
-import type { Data, Person, Session, Task } from '../types'
+import type { Data, Person, Post, Session, Task } from '../types'
 import { normalize, type DataStore } from './store'
 
 const url = import.meta.env.VITE_SUPABASE_URL
@@ -32,13 +32,16 @@ export function createSupabaseStore(db: SupabaseClient): DataStore {
     needsNetwork: true,
 
     async load() {
-      const [people, sessions, links, tasks] = await Promise.all([
+      const [people, sessions, links, tasks, posts] = await Promise.all([
         db.from('people').select('id, name, email, instagram, role, note'),
         db.from('sessions').select('id, title, session_date, start_time, end_time, location, description, status'),
         db.from('session_people').select('session_id, person_id'),
         db.from('tasks').select('id, session_id, parent_id, title, done, created_at'),
+        db
+          .from('posts')
+          .select('id, session_id, publish_date, publish_time, format, status, caption, hashtags, person_ids, notes'),
       ])
-      const error = people.error ?? sessions.error ?? links.error ?? tasks.error
+      const error = people.error ?? sessions.error ?? links.error ?? tasks.error ?? posts.error
       if (error) {
         // Offline albo chwilowy błąd: pokaż ostatnio pobrane dane.
         const cached = readCache()
@@ -68,6 +71,20 @@ export function createSupabaseStore(db: SupabaseClient): DataStore {
             title: row.title,
             done: row.done,
             createdAt: row.created_at,
+          }),
+        ),
+        posts: posts.data!.map(
+          (row): Post => ({
+            id: row.id,
+            sessionId: row.session_id,
+            date: row.publish_date ?? '',
+            time: row.publish_time,
+            format: row.format,
+            status: row.status,
+            caption: row.caption,
+            hashtags: row.hashtags,
+            personIds: row.person_ids,
+            notes: row.notes,
           }),
         ),
       }
@@ -133,6 +150,25 @@ export function createSupabaseStore(db: SupabaseClient): DataStore {
     async deleteTask(id) {
       // Podzadania usuwa baza (on delete cascade).
       check(await db.from('tasks').delete().eq('id', id))
+    },
+    async savePost(p) {
+      check(
+        await db.from('posts').upsert({
+          id: p.id,
+          session_id: p.sessionId,
+          publish_date: p.date || null,
+          publish_time: p.time,
+          format: p.format,
+          status: p.status,
+          caption: p.caption,
+          hashtags: p.hashtags,
+          person_ids: p.personIds,
+          notes: p.notes,
+        }),
+      )
+    },
+    async deletePost(id) {
+      check(await db.from('posts').delete().eq('id', id))
     },
   }
 }

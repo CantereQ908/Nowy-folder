@@ -12,13 +12,15 @@ import {
 import { useState, type ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { PersonTile } from '../components/PersonTile'
+import { PostCard } from '../components/PostCard'
+import { PostForm } from '../components/PostForm'
 import { RoleFilter, type RoleChoice } from '../components/RoleFilter'
 import { SessionForm } from '../components/SessionForm'
 import { TodoPanel } from '../components/TodoPanel'
 import { useData } from '../data/DataProvider'
 import { mailtoAll, matchesPerson } from '../lib/contact'
 import { formatLong, formatTimeRange } from '../lib/dates'
-import { ROLES, ROLE_LABEL_PLURAL, STATUS_LABEL, type Person } from '../types'
+import { ROLES, ROLE_LABEL_PLURAL, STATUS_LABEL, type Person, type Post } from '../types'
 
 const PINNED = 'pinned'
 const AVAILABLE = 'available'
@@ -50,6 +52,8 @@ export function SessionDetailView() {
   const [query, setQuery] = useState('')
   const [role, setRole] = useState<RoleChoice>('all')
   const [draggedId, setDraggedId] = useState<string | null>(null)
+  // 'new' = nowy post z tej sesji, Post = edycja
+  const [postForm, setPostForm] = useState<Post | 'new' | null>(null)
 
   // Mysz: przeciągnięcie po 8 px, żeby kliknięcia w linki działały.
   // Dotyk: przytrzymanie, żeby zwykłe przewijanie listy nie porywało kafelków.
@@ -77,6 +81,9 @@ export function SessionDetailView() {
     session.title,
   )
   const dragged = data.people.find((p) => p.id === draggedId)
+  const sessionPosts = data.posts
+    .filter((p) => p.sessionId === session.id)
+    .sort((a, b) => `${a.date || '9999'} ${a.time}`.localeCompare(`${b.date || '9999'} ${b.time}`))
 
   const onDragEnd = ({ active, over }: DragEndEvent) => {
     setDraggedId(null)
@@ -175,6 +182,32 @@ export function SessionDetailView() {
       </DndContext>
 
       <TodoPanel sessionId={session.id} title="Do zrobienia przed sesją" />
+
+      <section>
+        <div className="view-head">
+          <h2>Posty z tej sesji</h2>
+          <button className="btn" onClick={() => setPostForm('new')}>
+            Zaplanuj post
+          </button>
+        </div>
+        {sessionPosts.length === 0 ? (
+          <p className="muted">Brak zaplanowanych postów. Nowy post od razu dostanie oznaczoną ekipę tej sesji.</p>
+        ) : (
+          <div className="session-list">
+            {sessionPosts.map((p) => (
+              <PostCard key={p.id} post={p} showSession={false} onOpen={() => setPostForm(p)} />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {postForm && (
+        <PostForm
+          initial={postForm === 'new' ? undefined : postForm}
+          defaults={{ sessionId: session.id, personIds: session.personIds }}
+          onClose={() => setPostForm(null)}
+        />
+      )}
 
       {editing && <SessionForm initial={session} onClose={() => setEditing(false)} onDeleted={() => navigate('/')} />}
     </>

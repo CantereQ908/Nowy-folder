@@ -1,4 +1,4 @@
-import type { Data, Person, Session, Task } from '../types'
+import type { Data, Person, Post, Session, Task } from '../types'
 
 export type SessionFields = Omit<Session, 'personIds'>
 
@@ -17,9 +17,11 @@ export interface DataStore {
   saveTask(task: Task): Promise<void>
   /** Usuwa też podzadania. */
   deleteTask(id: string): Promise<void>
+  savePost(post: Post): Promise<void>
+  deletePost(id: string): Promise<void>
 }
 
-export const EMPTY: Data = { people: [], sessions: [], tasks: [] }
+export const EMPTY: Data = { people: [], sessions: [], tasks: [], posts: [] }
 
 /** Dane zapisane starszą wersją aplikacji mogą nie mieć nowszych pól. */
 export function normalize(data: Partial<Data>): Data {
@@ -41,6 +43,7 @@ export function withoutPerson(data: Data, id: string): Data {
     ...data,
     people: data.people.filter((p) => p.id !== id),
     sessions: data.sessions.map((s) => ({ ...s, personIds: s.personIds.filter((pid) => pid !== id) })),
+    posts: data.posts.map((p) => ({ ...p, personIds: p.personIds.filter((pid) => pid !== id) })),
   }
 }
 
@@ -59,6 +62,8 @@ export function withoutSession(data: Data, id: string): Data {
     ...data,
     sessions: data.sessions.filter((s) => s.id !== id),
     tasks: data.tasks.filter((t) => t.sessionId !== id),
+    // Posty zostają, tracą tylko powiązanie (jak on delete set null w bazie).
+    posts: data.posts.map((p) => (p.sessionId === id ? { ...p, sessionId: null } : p)),
   }
 }
 
@@ -72,6 +77,18 @@ export function withTask(data: Data, task: Task): Data {
 
 export function withoutTask(data: Data, id: string): Data {
   return { ...data, tasks: data.tasks.filter((t) => t.id !== id && t.parentId !== id) }
+}
+
+export function withPost(data: Data, post: Post): Data {
+  const exists = data.posts.some((p) => p.id === post.id)
+  return {
+    ...data,
+    posts: exists ? data.posts.map((p) => (p.id === post.id ? post : p)) : [...data.posts, post],
+  }
+}
+
+export function withoutPost(data: Data, id: string): Data {
+  return { ...data, posts: data.posts.filter((p) => p.id !== id) }
 }
 
 export function withPin(data: Data, sessionId: string, personId: string): Data {
