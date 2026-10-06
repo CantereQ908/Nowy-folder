@@ -1,6 +1,6 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import type { Data, Person, Post, Session, Task } from '../types'
-import { normalize, type DataStore } from './store'
+import { normalize, type DataStore, type SessionFields } from './store'
 
 const url = import.meta.env.VITE_SUPABASE_URL
 const key = import.meta.env.VITE_SUPABASE_KEY
@@ -26,6 +26,41 @@ function readCache(): Data | null {
 function check(result: { error: { message: string } | null }): void {
   if (result.error) throw new Error(result.error.message)
 }
+
+const sessionRow = (s: SessionFields) => ({
+  id: s.id,
+  title: s.title,
+  session_date: s.date,
+  start_time: s.time,
+  end_time: s.endTime,
+  location: s.location,
+  description: s.description,
+  status: s.status,
+})
+
+const taskRow = (t: Task) => ({
+  id: t.id,
+  session_id: t.sessionId,
+  parent_id: t.parentId,
+  title: t.title,
+  done: t.done,
+  due_date: t.dueDate || null,
+  due_time: t.dueDate ? t.dueTime : '',
+  created_at: t.createdAt,
+})
+
+const postRow = (p: Post) => ({
+  id: p.id,
+  session_id: p.sessionId,
+  publish_date: p.date || null,
+  publish_time: p.time,
+  format: p.format,
+  status: p.status,
+  caption: p.caption,
+  hashtags: p.hashtags,
+  person_ids: p.personIds,
+  notes: p.notes,
+})
 
 export function createSupabaseStore(db: SupabaseClient): DataStore {
   return {
@@ -111,18 +146,7 @@ export function createSupabaseStore(db: SupabaseClient): DataStore {
       check(await db.from('people').delete().eq('id', id))
     },
     async saveSession(s) {
-      check(
-        await db.from('sessions').upsert({
-          id: s.id,
-          title: s.title,
-          session_date: s.date,
-          start_time: s.time,
-          end_time: s.endTime,
-          location: s.location,
-          description: s.description,
-          status: s.status,
-        }),
-      )
+      check(await db.from('sessions').upsert(sessionRow(s)))
     },
     async deleteSession(id) {
       check(await db.from('sessions').delete().eq('id', id))
@@ -138,41 +162,29 @@ export function createSupabaseStore(db: SupabaseClient): DataStore {
       check(await db.from('session_people').delete().eq('session_id', sessionId).eq('person_id', personId))
     },
     async saveTask(t) {
-      check(
-        await db.from('tasks').upsert({
-          id: t.id,
-          session_id: t.sessionId,
-          parent_id: t.parentId,
-          title: t.title,
-          done: t.done,
-          due_date: t.dueDate || null,
-          due_time: t.dueDate ? t.dueTime : '',
-          created_at: t.createdAt,
-        }),
-      )
+      check(await db.from('tasks').upsert(taskRow(t)))
     },
     async deleteTask(id) {
       // Podzadania usuwa baza (on delete cascade).
       check(await db.from('tasks').delete().eq('id', id))
     },
     async savePost(p) {
-      check(
-        await db.from('posts').upsert({
-          id: p.id,
-          session_id: p.sessionId,
-          publish_date: p.date || null,
-          publish_time: p.time,
-          format: p.format,
-          status: p.status,
-          caption: p.caption,
-          hashtags: p.hashtags,
-          person_ids: p.personIds,
-          notes: p.notes,
-        }),
-      )
+      check(await db.from('posts').upsert(postRow(p)))
     },
     async deletePost(id) {
       check(await db.from('posts').delete().eq('id', id))
+    },
+    async importData(d) {
+      // Kolejność ma znaczenie: najpierw to, do czego inne wiersze się odwołują.
+      if (d.people.length) check(await db.from('people').upsert(d.people))
+      if (d.sessions.length) check(await db.from('sessions').upsert(d.sessions.map(sessionRow)))
+      const links = d.sessions.flatMap((s) => s.personIds.map((pid) => ({ session_id: s.id, person_id: pid })))
+      if (links.length) check(await db.from('session_people').upsert(links, { ignoreDuplicates: true }))
+      const roots = d.tasks.filter((t) => !t.parentId)
+      const subtasks = d.tasks.filter((t) => t.parentId)
+      if (roots.length) check(await db.from('tasks').upsert(roots.map(taskRow)))
+      if (subtasks.length) check(await db.from('tasks').upsert(subtasks.map(taskRow)))
+      if (d.posts.length) check(await db.from('posts').upsert(d.posts.map(postRow)))
     },
   }
 }

@@ -709,6 +709,58 @@ textarea {
   font-variant-numeric: tabular-nums;
 }
 
+/* Kopia zapasowa */
+
+.footer {
+  max-width: 1100px;
+  margin: -24px auto 0;
+  padding: 0 max(16px, env(safe-area-inset-right)) calc(32px + env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
+  font-size: 0.875rem;
+}
+
+.footer a {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.backup {
+  display: grid;
+  gap: 16px;
+  max-width: 640px;
+}
+
+.backup .todo-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.backup .todo-panel h2 {
+  margin: 0;
+}
+
+.backup-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.notice {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--planned) 14%, var(--surface));
+  font-size: 0.9rem;
+}
+
+.notice.ok {
+  background: color-mix(in srgb, var(--confirmed) 14%, var(--surface));
+}
+
+.notice.error {
+  background: color-mix(in srgb, var(--danger) 12%, var(--surface));
+  color: var(--danger);
+}
+
 /* Planer postów */
 
 .field {
@@ -1079,4 +1131,16 @@ textarea {
 .todo-add input {
   flex: 1;
   min-width: 0;
+}
+
+.file-btn {
+  position: relative;
+  justify-self: start;
+}
+
+.file-btn input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
 }

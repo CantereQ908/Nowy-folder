@@ -1,6 +1,7 @@
 import type { Data } from '../types'
 import {
   EMPTY,
+  mergeData,
   normalize,
   withPerson,
   withPin,
@@ -51,4 +52,5 @@ export const localStore: DataStore = {
   deleteTask: (id) => update((d) => withoutTask(d, id)),
   savePost: (post) => update((d) => withPost(d, post)),
   deletePost: (id) => update((d) => withoutPost(d, id)),
+  importData: (incoming) => update((d) => mergeData(d, incoming)),
 }

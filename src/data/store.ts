@@ -19,6 +19,8 @@ export interface DataStore {
   deleteTask(id: string): Promise<void>
   savePost(post: Post): Promise<void>
   deletePost(id: string): Promise<void>
+  /** Dopisuje dane z kopii: dodaje brakujące, nadpisuje te o tym samym id, niczego nie usuwa. */
+  importData(data: Data): Promise<void>
 }
 
 export const EMPTY: Data = { people: [], sessions: [], tasks: [], posts: [] }
@@ -89,6 +91,19 @@ export function withPost(data: Data, post: Post): Data {
 
 export function withoutPost(data: Data, id: string): Data {
   return { ...data, posts: data.posts.filter((p) => p.id !== id) }
+}
+
+export function mergeData(data: Data, incoming: Data): Data {
+  let result = data
+  for (const p of incoming.people) result = withPerson(result, p)
+  for (const s of incoming.sessions) {
+    const { personIds, ...fields } = s
+    result = withSession(result, fields)
+    for (const pid of personIds) result = withPin(result, s.id, pid)
+  }
+  for (const t of incoming.tasks) result = withTask(result, t)
+  for (const p of incoming.posts) result = withPost(result, p)
+  return result
 }
 
 export function withPin(data: Data, sessionId: string, personId: string): Data {

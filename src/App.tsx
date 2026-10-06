@@ -1,9 +1,10 @@
 import type { Session as AuthSession, SupabaseClient } from '@supabase/supabase-js'
 import { useEffect, useState } from 'react'
-import { HashRouter, NavLink, Route, Routes } from 'react-router-dom'
+import { HashRouter, Link, NavLink, Route, Routes, useLocation } from 'react-router-dom'
 import { DataProvider, useData } from './data/DataProvider'
 import { localStore } from './data/localStore'
 import { clearCache, createSupabaseStore, supabase } from './data/supabaseStore'
+import { BackupView, lastBackupLabel } from './views/BackupView'
 import { CalendarView } from './views/CalendarView'
 import { LoginView } from './views/LoginView'
 import { PeopleView } from './views/PeopleView'
@@ -12,6 +13,16 @@ import { SessionDetailView } from './views/SessionDetailView'
 import { SessionsView } from './views/SessionsView'
 
 const cloudStore = supabase ? createSupabaseStore(supabase) : null
+
+function Footer() {
+  // Odczyt adresu sprawia, że data ostatniej kopii odświeża się przy każdej zmianie ekranu.
+  useLocation()
+  return (
+    <footer className="footer">
+      <Link to="/kopia">Kopia zapasowa</Link> <span className="muted">· {lastBackupLabel()}</span>
+    </footer>
+  )
+}
 
 function Shell({ account, onSignOut }: { account?: string; onSignOut?(): void }) {
   const { loading, online, cloud, error, clearError } = useData()
@@ -59,9 +70,12 @@ function Shell({ account, onSignOut }: { account?: string; onSignOut?(): void })
             <Route path="/kalendarz" element={<CalendarView />} />
             <Route path="/ludzie" element={<PeopleView />} />
             <Route path="/posty/:postId?" element={<PostsView />} />
+            <Route path="/kopia" element={<BackupView />} />
           </Routes>
         )}
       </main>
+
+      <Footer />
 
       {error && (
         <div className="toast" role="alert">

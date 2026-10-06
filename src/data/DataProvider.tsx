@@ -34,6 +34,8 @@ interface DataContext {
   deleteTask(id: string): Promise<void>
   savePost(post: Post): Promise<void>
   deletePost(id: string): Promise<void>
+  /** Dopisuje dane z kopii zapasowej; błąd rzuca dalej, żeby pokazać go przy przywracaniu. */
+  restore(data: Data): Promise<void>
 }
 
 const Ctx = createContext<DataContext | null>(null)
@@ -125,6 +127,15 @@ export function DataProvider({ store, children }: { store: DataStore; children: 
       deleteTask: (id) => mutate((d) => withoutTask(d, id), () => store.deleteTask(id)),
       savePost: (p) => mutate((d) => withPost(d, p), () => store.savePost(p)),
       deletePost: (id) => mutate((d) => withoutPost(d, id), () => store.deletePost(id)),
+      restore: async (incoming) => {
+        if (store.needsNetwork && !navigator.onLine) throw new Error('Brak połączenia — przywracanie wymaga internetu.')
+        try {
+          await store.importData(incoming)
+        } finally {
+          // Także po błędzie: część danych mogła już trafić do bazy.
+          await refresh()
+        }
+      },
     }
   }, [data, loading, online, error, store, refresh])
 
