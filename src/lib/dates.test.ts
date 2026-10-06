@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatTimeRange, monthGrid, parseISO, todayISO, toISO } from './dates'
+import { formatDue, formatTimeRange, monthGrid, parseISO, todayISO, toISO } from './dates'
 
 describe('dates', () => {
   it('formats ISO dates with padding', () => {
@@ -28,6 +28,11 @@ describe('dates', () => {
     // sesje zapisane przed dodaniem godziny końca nie mają tego pola
     expect(formatTimeRange('15:30', undefined)).toBe('15:30')
     expect(formatTimeRange('', '')).toBe('')
+  })
+
+  it('formats a task due date with optional time', () => {
+    expect(formatDue('2026-10-09', '15:00')).toBe('pt. 9 paź · 15:00')
+    expect(formatDue('2026-10-09', '')).toBe('pt. 9 paź')
   })
 
   it('handles months starting on Monday and needing six weeks', () => {

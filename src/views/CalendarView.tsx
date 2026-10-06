@@ -55,6 +55,9 @@ export function CalendarView() {
           const posts = data.posts
             .filter((p) => p.date === cell.iso)
             .sort((a, b) => a.time.localeCompare(b.time))
+          const tasks = data.tasks
+            .filter((t) => t.dueDate === cell.iso)
+            .sort((a, b) => (a.dueTime ?? '').localeCompare(b.dueTime ?? ''))
           const classes = ['day', !cell.inMonth && 'outside', cell.iso === today && 'today'].filter(Boolean).join(' ')
           return (
             <div key={cell.iso} className={classes}>
@@ -77,11 +80,23 @@ export function CalendarView() {
                   {p.caption.split('\n')[0] || POST_FORMAT_LABEL[p.format]}
                 </Link>
               ))}
+              {tasks.map((t) => (
+                <Link
+                  key={t.id}
+                  to={t.sessionId ? `/sesja/${t.sessionId}` : '/'}
+                  className={t.done ? 'day-session day-task done' : 'day-session day-task'}
+                  title={t.done ? 'Zadanie wykonane' : 'Zadanie do zrobienia'}
+                >
+                  <span className="day-task-label">{t.done ? '✓' : '○'} </span>
+                  {t.dueTime && <span className="day-session-time">{t.dueTime} </span>}
+                  {t.title}
+                </Link>
+              ))}
             </div>
           )
         })}
       </div>
-      <p className="muted hint">Kliknij numer dnia, żeby dodać sesję w tym terminie. Wpisy „IG" to zaplanowane posty.</p>
+      <p className="muted hint">Kliknij numer dnia, żeby dodać sesję w tym terminie. Wpisy „IG" to zaplanowane posty, a „○" to zadania z terminem.</p>
 
       {addingOn && (
         <SessionForm

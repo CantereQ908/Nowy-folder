@@ -38,6 +38,8 @@ create table public.tasks (
   parent_id uuid references public.tasks (id) on delete cascade,
   title text not null,
   done boolean not null default false,
+  due_date date,
+  due_time text not null default '',
   created_at timestamptz not null default now()
 );
 

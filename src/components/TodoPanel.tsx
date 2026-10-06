@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useData } from '../data/DataProvider'
+import { formatDue, todayISO } from '../lib/dates'
 import type { Task } from '../types'
 
 const byCreated = (a: Task, b: Task) =>
@@ -43,9 +44,61 @@ function AddTask({ placeholder, autoFocus, onAdd, onCancel }: AddTaskProps) {
   )
 }
 
+function CalendarIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <rect x="3" y="5" width="18" height="16" rx="2" />
+      <path d="M3 10h18M8 3v4M16 3v4" />
+    </svg>
+  )
+}
+
+function DueEditor({ task, onClose }: { task: Task; onClose(): void }) {
+  const { saveTask } = useData()
+  const [date, setDate] = useState(task.dueDate ?? '')
+  const [time, setTime] = useState(task.dueTime ?? '')
+
+  const save = (dueDate: string, dueTime: string) => {
+    void saveTask({ ...task, dueDate, dueTime: dueDate ? dueTime : '' })
+    onClose()
+  }
+
+  return (
+    <div className="todo-due-edit">
+      <input type="date" value={date} aria-label={`Termin: ${task.title}`} autoFocus onChange={(e) => setDate(e.target.value)} />
+      <input type="time" value={time} aria-label="Godzina" disabled={!date} onChange={(e) => setTime(e.target.value)} />
+      <div className="todo-due-actions">
+        {task.dueDate && (
+          <button type="button" className="btn small danger" onClick={() => save('', '')}>
+            Usuń termin
+          </button>
+        )}
+        <button type="button" className="btn small" onClick={onClose}>
+          Anuluj
+        </button>
+        <button type="button" className="btn small primary" disabled={!date} onClick={() => save(date, time)}>
+          Zapisz
+        </button>
+      </div>
+    </div>
+  )
+}
+
 function TaskRow({ task, subtasks, onAddSubtask }: { task: Task; subtasks?: Task[]; onAddSubtask?(): void }) {
   const { saveTask, deleteTask } = useData()
   const [editing, setEditing] = useState(false)
+  const [editingDue, setEditingDue] = useState(false)
+
+  const today = todayISO()
+  const dueClass = !task.dueDate
+    ? ''
+    : task.done
+      ? ''
+      : task.dueDate < today
+        ? ' overdue'
+        : task.dueDate === today
+          ? ' today'
+          : ''
 
   const rename = (value: string) => {
     setEditing(false)
@@ -58,6 +111,7 @@ function TaskRow({ task, subtasks, onAddSubtask }: { task: Task; subtasks?: Task
   }
 
   return (
+    <>
     <div className={task.done ? 'todo-row done' : 'todo-row'}>
       <input
         type="checkbox"
@@ -78,14 +132,31 @@ function TaskRow({ task, subtasks, onAddSubtask }: { task: Task; subtasks?: Task
           }}
         />
       ) : (
-        <button className="todo-title" title="Kliknij, żeby zmienić treść" onClick={() => setEditing(true)}>
-          {task.title}
-        </button>
+        <div className="todo-main">
+          <button className="todo-title" title="Kliknij, żeby zmienić treść" onClick={() => setEditing(true)}>
+            {task.title}
+          </button>
+          {task.dueDate && (
+            <button
+              className={`todo-due${dueClass}`}
+              aria-label={`Zmień termin: ${formatDue(task.dueDate, task.dueTime)}`}
+              onClick={() => setEditingDue(true)}
+            >
+              <CalendarIcon />
+              {formatDue(task.dueDate, task.dueTime)}
+            </button>
+          )}
+        </div>
       )}
       {subtasks && subtasks.length > 0 && (
         <span className="muted todo-count">
           {subtasks.filter((s) => s.done).length}/{subtasks.length}
         </span>
+      )}
+      {!task.dueDate && !editing && (
+        <button className="todo-icon" aria-label={`Ustaw termin: ${task.title}`} title="Ustaw termin" onClick={() => setEditingDue(true)}>
+          <CalendarIcon />
+        </button>
       )}
       {onAddSubtask && (
         <button className="btn small" aria-label={`Dodaj podzadanie: ${task.title}`} onClick={onAddSubtask}>
@@ -96,6 +167,8 @@ function TaskRow({ task, subtasks, onAddSubtask }: { task: Task; subtasks?: Task
         ×
       </button>
     </div>
+    {editingDue && <DueEditor task={task} onClose={() => setEditingDue(false)} />}
+    </>
   )
 }
 
@@ -115,6 +188,8 @@ export function TodoPanel({ sessionId, title }: { sessionId: string | null; titl
       parentId,
       title: taskTitle,
       done: false,
+      dueDate: '',
+      dueTime: '',
       createdAt: new Date().toISOString(),
     })
 

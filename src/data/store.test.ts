@@ -22,6 +22,8 @@ const task = (id: string, extra: Partial<Task> = {}): Task => ({
   parentId: null,
   title: id,
   done: false,
+  dueDate: '',
+  dueTime: '',
   createdAt: '2026-10-02T12:00:00.000Z',
   ...extra,
 })

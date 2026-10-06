@@ -52,6 +52,12 @@ export function formatTimeRange(start: string, end?: string): string {
   return start
 }
 
+/** Krótki termin, np. „pt. 9 paź · 15:00". */
+export function formatDue(date: string, time?: string): string {
+  const day = formatDate(date, { weekday: 'short', day: 'numeric', month: 'short' }).replace(',', '')
+  return time ? `${day} · ${time}` : day
+}
+
 export function monthLabel(year: number, month: number): string {
   return new Intl.DateTimeFormat('pl-PL', { month: 'long', year: 'numeric' }).format(new Date(year, month - 1, 1))
 }

@@ -34,6 +34,10 @@ export interface Task {
   parentId: string | null
   title: string
   done: boolean
+  /** Termin: YYYY-MM-DD albo pusty string */
+  dueDate: string
+  /** Godzina terminu: HH:MM albo pusty string */
+  dueTime: string
   /** ISO, wyznacza kolejność na liście */
   createdAt: string
 }

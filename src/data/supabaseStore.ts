@@ -36,7 +36,7 @@ export function createSupabaseStore(db: SupabaseClient): DataStore {
         db.from('people').select('id, name, email, instagram, role, note'),
         db.from('sessions').select('id, title, session_date, start_time, end_time, location, description, status'),
         db.from('session_people').select('session_id, person_id'),
-        db.from('tasks').select('id, session_id, parent_id, title, done, created_at'),
+        db.from('tasks').select('id, session_id, parent_id, title, done, due_date, due_time, created_at'),
         db
           .from('posts')
           .select('id, session_id, publish_date, publish_time, format, status, caption, hashtags, person_ids, notes'),
@@ -70,6 +70,8 @@ export function createSupabaseStore(db: SupabaseClient): DataStore {
             parentId: row.parent_id,
             title: row.title,
             done: row.done,
+            dueDate: row.due_date ?? '',
+            dueTime: row.due_time,
             createdAt: row.created_at,
           }),
         ),
@@ -143,6 +145,8 @@ export function createSupabaseStore(db: SupabaseClient): DataStore {
           parent_id: t.parentId,
           title: t.title,
           done: t.done,
+          due_date: t.dueDate || null,
+          due_time: t.dueDate ? t.dueTime : '',
           created_at: t.createdAt,
         }),
       )
